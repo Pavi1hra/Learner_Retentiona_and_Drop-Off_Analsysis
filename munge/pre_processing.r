@@ -26,5 +26,25 @@ completed_pt_enrolments_7 <- df %>%
   summarise(number_of_learners = n_distinct(learner_id)
   )
 
+df<- cyber.security.7_leaving.survey.responses
+df$left_at <- as.POSIXct(df$left_at, format='%Y-%m-%d %H:%M:%S')
+
+df <- df %>%
+  mutate(
+    year = year(left_at),
+    month = month(left_at),
+    month_name = month.name[month]  
+  )
+
+drop_off <- df %>%
+  group_by(year, month, last_completed_week_number, last_completed_step_number) %>%
+  summarise(number_of_learners = n(), .groups = "drop") %>%
+  arrange(year, month, last_completed_week_number, last_completed_step_number)
+
+drop_off_clean <- drop_off %>%
+  filter(!is.na(last_completed_step_number) & last_completed_step_number != "Missing")
+
+view()
+cache("completed_pt_enrolments_7")
 
 
