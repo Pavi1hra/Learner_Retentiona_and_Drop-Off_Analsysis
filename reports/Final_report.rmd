@@ -1,0 +1,26 @@
+---
+title: "MAS8600_assignment"
+author: "Pavithra Govinda Raj"
+date: "2026-01-01"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Introduction 
+
+Learning Analytics has emerged as a pivotal area of focus within the field of Data Science, with the potential to significantly enhance the understanding of how students engage with educational content and environments. Defined as the "measurement, collection, analysis, and reporting of data about learners and their contexts," Learning Analytics plays a crucial role in optimizing learning experiences and outcomes. By leveraging diverse datasets, Learning Analytics aims to provide valuable insights into the effectiveness of educational methods, inform intervention strategies, and ultimately enhance student performance.
+
+Traditionally, student engagement has been tracked through basic metrics such as attendance, which, while useful, fail to capture the full extent and quality of engagement. Beyond the classroom, various forms of data—ranging from interactions with Virtual Learning Environments (VLEs) and campus facilities to wellbeing referrals—are routinely collected. However, these datasets are often siloed and lack the integration needed to generate comprehensive insights.
+
+This report focuses on a dataset collected from seven runs of the massive open online course (MOOC) titled "Cyber Security: Safety at Home, Online, and in Life," developed by Newcastle University and offered to the public via the FutureLearn platform. The data encompasses learner interactions throughout the course, along with profile-based characteristics, allowing for a deeper understanding of learner behavior and engagement. By aggregating and analyzing this data, this report seeks to identify patterns of engagement, determine factors that influence student success, and explore ways to enhance learning design and student interventions, especially for those at risk of underperformance.
+
+Through the application of Learning Analytics, we aim to not only understand current learner engagement but also optimize future learning experiences, improving both student satisfaction and attainment.
+
+# 
+
+
+
