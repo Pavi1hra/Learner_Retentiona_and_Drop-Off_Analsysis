@@ -72,4 +72,67 @@ ggplot(drop_off_ordered, aes(x = week_step, y = number_of_learners)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  
 ```
+```{r}
+
+```
+
+
+```{r}
+#checking to see if the experience influences when a user leaves
+cor(weekly_survey_responses$experience_rating,
+    weekly_survey_responses$week_number,
+    method = "spearman", use="complete.obs")
+```
+
+Positive sign → very slight tendency that higher experience ratings correspond to later leaving weeks
+Magnitude is very close to 0 → practically no monotonic association
+Essentially, experience rating and leaving week are independent in your dataset.
+
+```{r}
+#does the video duration influence last_completed_week number. interepretation, the users that completed the course have actually gone through all the videos and taken the time to complete them
+cor.test(df$video_duration, df$last_completed_week_number, method="spearman")
+```
+
+As video_duration increases, last_completed_week_number always increases without exception.
+Strength: rho = 1 → extremely strong positive monotonic relationship
+Direction: positive → longer videos correspond to later leaving weeks
+Significance: p < 2.2e-16 → statistically significant
+Caution: ties reduce the precision of the exact p-value, but the conclusion of strong positive correlation is still valid.
+In practice: rho = 1 with discrete steps often indicates that step number is perfectly aligned with cumulative video duration — which makes sense if video_duration is taken from the step the learner last completed.
+
+```{r}
+#how long does it take to complete one step
+ggplot(step_summary, aes(x=step, y=median_duration)) +
+  geom_col() +
+  labs(y="Median duration (secs)", x="Step")
+```
+
+Interpreting the plot:
+The x-axis shows the steps in the course, probably in ascending order (1, 2, 3, ...).
+The y-axis shows the median duration learners spent on each step, measured in seconds.
+Each bar height corresponds to the median time learners took on that particular step.
+From the plot, you can see:
+Some steps have very low median durations (short bars), meaning learners spent less time on those steps on average.
+Some steps have very high median durations (tall bars), meaning learners spent a longer time on those steps.
+For example, there’s a very tall bar at around step 3, showing a large spike in median duration, indicating that step 3 took much longer on median compared to other steps.
+Some steps show a cluster of short bars with very low durations, possibly indicating quick steps or skippable content.
+The variability between steps in terms of median duration could suggest that some steps are more complex or require more effort.
+
+```{r}
+#time taken at eat step and the number of learners at each step
+ggplot(step_summary, aes(x = factor(step))) +
+  geom_col(aes(y = median_duration_secs), fill = "steelblue", alpha = 0.7) +
+  geom_line(aes(y = learner_count_scaled, group = 1), color = "firebrick", size = 1) +
+  geom_point(aes(y = learner_count_scaled), color = "firebrick", size = 2) +
+  scale_y_continuous(
+    name = "Median Duration (seconds)",
+    sec.axis = sec_axis(~ . / max_duration * max_learners,
+                        name = "Number of Learners")
+  ) +
+  labs(
+    x = "Step",
+    title = "Median Duration per Step with Learner Count Overlay"
+  ) +
+  theme_minimal()
+```
 
