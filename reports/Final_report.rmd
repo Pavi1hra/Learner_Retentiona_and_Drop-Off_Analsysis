@@ -21,6 +21,55 @@ This report focuses on a dataset collected from seven runs of the massive open o
 Through the application of Learning Analytics, we aim to not only understand current learner engagement but also optimize future learning experiences, improving both student satisfaction and attainment.
 
 # 
+```{r}
+#load('cached_objects.RData') - modify to specify for your objects
+```
 
 
+```{r} 
+#EDA : Adoption Rate 
+# Step 1: Calculate total learners across all months
+total_learners <- sum(adoption_pt_enrolments_7$number_of_learners)
+
+# Step 2: Calculate adoption rate for each month
+adoption_pt_enrolments_7 <- adoption_pt_enrolments_7 %>%
+  mutate(adoption_rate = (number_of_learners / total_learners) * 100)
+
+# Step 3: Create a bar graph of adoption rate per month
+ggplot(adoption_pt_enrolments_7, aes(x = factor(month), y = adoption_rate, fill = factor(month))) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(title = "Adoption Rate per Month",
+       x = "Month",
+       y = "Adoption Rate (%)") +
+  scale_x_discrete(labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x labels for readability
+```
+
+```{r}
+#completion rate
+completed_course <- completed_pt_enrolments_7$number_of_learners[-nrow(completed_pt_enrolments_7)] |>
+  na.omit() |>
+  sum()
+
+total_enroled <- adoption_pt_enrolments_7$number_of_learners |>
+  na.omit() |>
+  sum()
+
+total_completion_rate <- (completed_course / total_enroled) * 100
+print(paste("Less than 1% completed the course:", total_completion_rate))
+```
+
+```{r}
+#Identifying the drop off point
+ggplot(drop_off_ordered, aes(x = week_step, y = number_of_learners)) +
+  geom_bar(stat = "identity", fill = "#007BA7") +
+  labs(
+    title = "Number of Learners at each Step",
+    x = "Last Completed Step",
+    y = "Number of Learners"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+```
 

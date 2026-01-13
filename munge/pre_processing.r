@@ -28,23 +28,39 @@ completed_pt_enrolments_7 <- df %>%
 
 df<- cyber.security.7_leaving.survey.responses
 df$left_at <- as.POSIXct(df$left_at, format='%Y-%m-%d %H:%M:%S')
-
 df <- df %>%
   mutate(
     year = year(left_at),
     month = month(left_at),
     month_name = month.name[month]  
   )
-
 drop_off <- df %>%
   group_by(year, month, last_completed_week_number, last_completed_step_number) %>%
   summarise(number_of_learners = n(), .groups = "drop") %>%
   arrange(year, month, last_completed_week_number, last_completed_step_number)
 
 drop_off_clean <- drop_off %>%
-  filter(!is.na(last_completed_step_number) & last_completed_step_number != "Missing")
+  filter(
+    !is.na(last_completed_week_number),
+    !is.na(last_completed_step_number)
+  ) %>%
+  mutate(
+    week_step = paste(
+      "Week", last_completed_week_number,
+      "- Step", last_completed_step_number
+    )
+  )
 
-view()
+drop_off_ordered <- drop_off_clean %>%
+  arrange(last_completed_week_number, last_completed_step_number) %>%
+  mutate(
+    week_step = factor(
+      week_step,
+      levels = unique(week_step)
+    )
+  )
+
+view(df)
 cache("completed_pt_enrolments_7")
 
 
