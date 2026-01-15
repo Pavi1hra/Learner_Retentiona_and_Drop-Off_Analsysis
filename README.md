@@ -1,39 +1,41 @@
-# MAS8600_Assignment
+# "Newcastle MOOC : Learner Retention and Drop-Off Patterns"
 
-Welcome to ProjectTemplate!
+#Description:
+This project investigates learner engagement in a Newcastle University online 
+cybersecurity course. The primary research question is whether there is a 
+significant drop-off during the course, and the secondary question explores factors 
+that may influence learner dropout. Step-level data, including median time spent per step 
+and learner counts, are analyzed to identify points where learners disengage. Visualizations 
+overlaying step duration and learner retention help highlight bottlenecks, 
+while further analysis considers step characteristics, such as type or difficulty, 
+as potential factors affecting drop-off. The findings aim to pinpoint stages of high 
+attrition and provide insights to improve course design and learner retention.
 
-This file introduces you to ProjectTemplate, but you should eventually replace
-the contents of this file with an introduction to your project. People who
-work with your data in the future will thank you for it, including your future
-self.
+#Directory information: 
+the major folders in the project directory that we will be using are: 
 
-ProjectTemplate is an R package that helps you organize your statistical
-analysis projects. Since you're reading this file, we'll assume that you've
-already called `create.project()` to set up this project and all of its
-contents.
+cache/ – Stores cached intermediate results to speed up analyses and avoid repeated computations.
+reports/ – Contains final rendered outputs (e.g., PDF/HTML/Word reports) for submission or presentation.
+munge/ – Holds scripts for cleaning, transforming, and preparing raw data for analysis.
+config/ – Centralizes project configuration settings such as paths, parameters, and global options.
 
-To load your new project, you'll first need to `setwd()` into the directory
-where this README file is located. Then you need to run the following two
-lines of R code:
+#Project setup 
+The project is fairly easy to setup, downloading the zipped folder and running it with the r version that is denoted in the renv.lock file
 
-	library('ProjectTemplate')
-	load.project()
+#Project execution instruction
+- Install the required R version
+- Ensure that the version of R specified in the renv.lock file is installed on your system.
+- Download and extract the project
+- Download the zipped project folder and extract it to a local directory.
+- Open the project in RStudio
+- Open the .Rproj file located in the project root to ensure correct working directories and project settings.
+- Restore the project environment
+- Install renv if it is not already installed, then restore the project-specific package library:
+install.packages("renv")
+- renv::restore()
+- Run data preparation scripts
+- Execute the scripts in the munge/ directory to clean and prepare the raw step-level data for analysis.
+- Run analysis and generate outputs
+- Run the analysis scripts or render the report files (e.g., R Markdown) to reproduce figures and results.
+Final outputs will be saved in the reports/ directory.
 
-After you enter the second line of code, you'll see a series of automated
-messages as ProjectTemplate goes about doing its work. This work involves:
-* Reading in the global configuration file contained in `config`.
-* Loading any R packages you listed in the configuration file.
-* Reading in any datasets stored in `data` or `cache`.
-* Preprocessing your data using the files in the `munge` directory.
-
-Once that's done, you can execute any code you'd like. For every analysis
-you create, we'd recommend putting a separate file in the `src` directory.
-If the files start with the two lines mentioned above:
-
-	library('ProjectTemplate')
-	load.project()
-
-You'll have access to all of your data, already fully preprocessed, and
-all of the libraries you want to use.
-
-For more details about ProjectTemplate, see http://projecttemplate.net

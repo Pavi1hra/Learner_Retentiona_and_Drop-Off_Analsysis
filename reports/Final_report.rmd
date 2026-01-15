@@ -1,7 +1,7 @@
 ---
 title: "Newcastle MOOC : Learner Retention and Drop-Off Patterns"
 author: "Pavithra Govinda Raj"
-date: "2026-01-01"
+date: "2026-01-15"
 output: pdf_document
 ---
 
@@ -40,14 +40,14 @@ The organisation that publishes the data is Newcastle University, in collaborati
 
 The data used in this analysis records learner activity metrics across seven weeks of the online course “Cyber Security: Safety at Home, Online, and in Life.” The dataset is sourced from the FutureLearn platform and captures learner interactions at multiple levels of granularity. For each week of the course, eight separate data files are provided, each representing a distinct aspect of learner engagement. As the data is generated directly by the learning platform, there are no general concerns regarding data quality. Further information on the structure and definitions of the recorded metrics is provided below.
 
-- weekly_sentiment_survey_responses: Data comprising 77 observations and five variables, including respondent identifiers, response timestamps, week numbers, experience ratings, and reported reasons. The dataset is complete across all variables, with the exception of the reason column, which contains some missing entries.
-- video_stats: Data on video engagement and audience characteristics, comprising multiple observations and 34 variables, which include video metadata (e.g. position, title, duration), measures of reach and interaction (e.g. total views, downloads, caption and transcript views), detailed viewer retention at multiple watch thresholds (from 5% to 100%), device usage distributions (console, desktop, mobile, TV, tablet, unknown), and geographic distribution of views across global regions (Europe, Oceania, Asia, North America, South America, Africa, and Antarctica).
-- team_members: Data on team composition and roles, comprising multiple records and five variables, which include unique identifiers and member attributes such as first and last names, team roles, and user roles.
-- step_activity: Data on learner progress and engagement with course steps, comprising multiple records and six variables, which include learner identifiers, step and step number, week number, and timestamps indicating when each step was first visited and last completed.
-- question_response: Data on learner interactions with quiz questions, comprising multiple records and ten variables, which include learner identifiers, quiz question text, question type, week and step numbers, question number, learner responses (including cloze responses), submission timestamps, and indicators of response correctness.
-- leaving_survey_responses: Data on learner attrition and exit feedback, comprising multiple records and eight variables, which include unique response identifiers, learner identifiers, timestamps of leaving, stated reasons for leaving, and details of the learner’s last completed step, including date, step name, week number, and step number.
-- enrolments: Data on learner enrollment and demographic characteristics, comprising multiple records and thirteen variables, which include learner identifiers, enrollment and unenrollment timestamps, learner role, participation and certificate purchase dates, and demographic information such as gender, country, age range, highest education level, employment status, employment area, and detected country.
-- archetype_survey_responses: Data on learner archetype survey responses, comprising multiple records and four variables, which include unique response identifiers, learner identifiers, timestamps of response submission, and the archetype assigned to each learner.
+- **weekly_sentiment_survey_responses**: Data comprising 77 observations and five variables, including respondent identifiers, response timestamps, week numbers, experience ratings, and reported reasons. The dataset is complete across all variables, with the exception of the reason column, which contains some missing entries.
+- **video_stats**: Data on video engagement and audience characteristics, comprising multiple observations and 34 variables, which include video metadata (e.g. position, title, duration), measures of reach and interaction (e.g. total views, downloads, caption and transcript views), detailed viewer retention at multiple watch thresholds (from 5% to 100%), device usage distributions (console, desktop, mobile, TV, tablet, unknown), and geographic distribution of views across global regions (Europe, Oceania, Asia, North America, South America, Africa, and Antarctica).
+- **team_members**: Data on team composition and roles, comprising multiple records and five variables, which include unique identifiers and member attributes such as first and last names, team roles, and user roles.
+- **step_activity**: Data on learner progress and engagement with course steps, comprising multiple records and six variables, which include learner identifiers, step and step number, week number, and timestamps indicating when each step was first visited and last completed.
+- **question_response**: Data on learner interactions with quiz questions, comprising multiple records and ten variables, which include learner identifiers, quiz question text, question type, week and step numbers, question number, learner responses (including cloze responses), submission timestamps, and indicators of response correctness.
+- **leaving_survey_responses**: Data on learner attrition and exit feedback, comprising multiple records and eight variables, which include unique response identifiers, learner identifiers, timestamps of leaving, stated reasons for leaving, and details of the learner’s last completed step, including date, step name, week number, and step number.
+- **enrolments**: Data on learner enrollment and demographic characteristics, comprising multiple records and thirteen variables, which include learner identifiers, enrollment and unenrollment timestamps, learner role, participation and certificate purchase dates, and demographic information such as gender, country, age range, highest education level, employment status, employment area, and detected country.
+- **archetype_survey_responses**: Data on learner archetype survey responses, comprising multiple records and four variables, which include unique response identifiers, learner identifiers, timestamps of response submission, and the archetype assigned to each learner.
 
 # Data Analysis
 We have analyzed the enrolments dataset to examine learner adoption and course completion rates during the final (7th) week of the course. Focusing on the 7th week is significant because it captures learner engagement and completion behavior at the course’s conclusion, providing insights into who persists through to the end and identifying potential drop-off points. Understanding these metrics is critical for higher education institutions, course designers, and learning technologists to identify barriers to engagement, optimize course design, and enhance learner outcomes. Academic researchers can use these insights to study patterns in learner behavior toward the end of the course, while platform providers can leverage the findings to improve platform functionality and support learner retention.
@@ -67,9 +67,7 @@ Where:
 - `Number of learners in that month`: distinct learners enrolled in a given month
 - `Total number of learners`: sum of distinct learners across all months
 
-```{r adoption-rate, fig.cap="Adoption Rate per month"} 
-#EDA : Adoption Rate 
-# Step 3: Create a bar graph of adoption rate per month
+```{r} 
 ggplot(adoption_pt_enrolments_7,
        aes(x = factor(month_enroled), y = adoption_rate)) +
   geom_bar(stat = "identity", fill = "#00C7C7") +
@@ -123,8 +121,8 @@ Out of all learners who enrolled in the course, only approximately 1.8% successf
 
 Given that our research question focuses specifically on learner retention, we will examine drop-off patterns throughout the course to better understand the points at which learners disengage and the potential contributing factors
 
-```{r drop-off,fig.cap="Drop off per week"}
-#Identifying the drop off point
+```{r}
+#Identifying drop off point
 ggplot(drop_off_ordered, aes(x = week_step, y = number_of_learners)) +
   geom_bar(stat = "identity", fill = "#007BA7") +
   labs(
@@ -135,8 +133,7 @@ ggplot(drop_off_ordered, aes(x = week_step, y = number_of_learners)) +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
-    plot.title = element_text(hjust = 0.5)
-  )
+    plot.title = element_text(hjust = 0.5))
 ```
 Looking at the above plot we observe that: 
 
@@ -161,7 +158,7 @@ The business understanding remains the same as in the previous cycle, but this c
 # Data Understanding 
 From leaving_survey_response data set we obtain the below information. 
 
-```{r word cloud, fig.cap="Responses"}
+```{r}
 # word cloud of responses
 wordcloud(corpus_sentences, 
           scale = c(3, 0.5),   # Adjust the size of words (sentences)
@@ -198,7 +195,7 @@ Strength: $\rho$ = 1, indicating a perfectly strong positive monotonic relations
 
 The following plot is used to explore how time spent on each step relates to learner drop-off. The bars represent the median duration per step, while the overlaid line shows the number of learners remaining at each step.
 
-```{r duration vs learner, fig.cap="Duration & Learners"}
+```{r fig.cap="Duration & Learners"}
 #time taken at eat step and the number of learners at each step
 ggplot(step_summary, aes(x = step)) +
   geom_col(aes(y = median_duration_secs), fill = "steelblue", alpha = 0.7) +
