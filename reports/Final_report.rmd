@@ -1,5 +1,5 @@
 ---
-title: "MAS8600_assignment"
+title: ""
 author: "Pavithra Govinda Raj"
 date: "2026-01-01"
 output: pdf_document
@@ -7,70 +7,76 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir= normalizePath('..'))
+```
+
+```{r load_project, include = FALSE}
+library(ProjectTemplate)
+load.project()
 ```
 
 
 # Introduction 
 
-Learning Analytics has emerged as a pivotal area of focus within the field of Data Science, with the potential to significantly enhance the understanding of how students engage with educational content and environments. Defined as the "measurement, collection, analysis, and reporting of data about learners and their contexts," Learning Analytics plays a crucial role in optimizing learning experiences and outcomes. By leveraging diverse datasets, Learning Analytics aims to provide valuable insights into the effectiveness of educational methods, inform intervention strategies, and ultimately enhance student performance.
+This report applies Learning Analytics techniques to data from multiple runs of the MOOC “Cyber Security: Safety at Home, Online, and in Life”, developed by Newcastle University and delivered via the FutureLearn platform. The analysis follows the CRISP-DM (Cross-Industry Standard Process for Data Mining) cycle, progressing through business understanding, data understanding, data preparation, analysis, and evaluation to investigate learner engagement and attrition patterns.
 
-Traditionally, student engagement has been tracked through basic metrics such as attendance, which, while useful, fail to capture the full extent and quality of engagement. Beyond the classroom, various forms of data—ranging from interactions with Virtual Learning Environments (VLEs) and campus facilities to wellbeing referrals—are routinely collected. However, these datasets are often siloed and lack the integration needed to generate comprehensive insights.
+The stakeholders are higher education institutions, course designers, learning technologists, academic researchers, and platform providers. Learner engagement is a critical challenge in MOOCs, where high dropout rates are common, and improving engagement can enhance learning outcomes, learner satisfaction, and the effective use of educational resources.
 
-This report focuses on a dataset collected from seven runs of the massive open online course (MOOC) titled "Cyber Security: Safety at Home, Online, and in Life," developed by Newcastle University and offered to the public via the FutureLearn platform. The data encompasses learner interactions throughout the course, along with profile-based characteristics, allowing for a deeper understanding of learner behavior and engagement. By aggregating and analyzing this data, this report seeks to identify patterns of engagement, determine factors that influence student success, and explore ways to enhance learning design and student interventions, especially for those at risk of underperformance.
+MOOC platforms generate rich interaction data through virtual learning environments, course content, and assessments, offering insights beyond traditional engagement metrics such as completion rates. When analysed within a structured framework like CRISP-DM, this data can reveal where learners disengage and which course design elements may contribute to attrition.
 
-Through the application of Learning Analytics, we aim to not only understand current learner engagement but also optimize future learning experiences, improving both student satisfaction and attainment.
+The study is guided by the research question:
 
-# 
-```{r}
-#load('cached_objects.RData') - modify to specify for your objects
-```
+> **"In which steps do users drop off the most?**"
 
+The Learning Analytics process is considered successful if key points of disengagement are identified, or if learner attrition is shown to be evenly distributed across course steps, thereby informing evidence-based interventions and course improvements.
+
+# CRISP-DM Cycle 1
+
+## Business Understanding
+
+The organisation that publishes the data is Newcastle University, in collaboration with the FutureLearn platform. The data is produced through the delivery of the MOOC “Cyber Security: Safety at Home, Online, and in Life” to learners from diverse geographic and educational backgrounds. The purpose of collecting and analysing this data is to document patterns of learner engagement and attrition, with the aim of informing course design decisions, improving learner retention, and enhancing the overall effectiveness of large-scale online education.
+
+## Data Understanding
+
+The data used in this analysis records learner activity metrics across seven weeks of the online course “Cyber Security: Safety at Home, Online, and in Life.” The dataset is sourced from the FutureLearn platform and captures learner interactions at multiple levels of granularity. For each week of the course, eight separate data files are provided, each representing a distinct aspect of learner engagement. As the data is generated directly by the learning platform, there are no general concerns regarding data quality. Further information on the structure and definitions of the recorded metrics is provided below.
+
+- 
 
 ```{r} 
 #EDA : Adoption Rate 
-# Step 1: Calculate total learners across all months
-total_learners <- sum(adoption_pt_enrolments_7$number_of_learners)
-
-# Step 2: Calculate adoption rate for each month
-adoption_pt_enrolments_7 <- adoption_pt_enrolments_7 %>%
-  mutate(adoption_rate = (number_of_learners / total_learners) * 100)
-
 # Step 3: Create a bar graph of adoption rate per month
-ggplot(adoption_pt_enrolments_7, aes(x = factor(month), y = adoption_rate, fill = factor(month))) +
-  geom_bar(stat = "identity", show.legend = FALSE) +
+ggplot(adoption_pt_enrolments_7,
+       aes(x = factor(month_enroled), y = adoption_rate)) +
+  geom_bar(stat = "identity", fill = "#00C7C7") +
   labs(title = "Adoption Rate per Month",
        x = "Month",
        y = "Adoption Rate (%)") +
-  scale_x_discrete(labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  scale_x_discrete(labels = c(
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  )) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x labels for readability
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ```{r}
 #completion rate
-completed_course <- completed_pt_enrolments_7$number_of_learners[-nrow(completed_pt_enrolments_7)] |>
-  na.omit() |>
-  sum()
-
-total_enroled <- adoption_pt_enrolments_7$number_of_learners |>
-  na.omit() |>
-  sum()
-
-total_completion_rate <- (completed_course / total_enroled) * 100
 print(paste("Less than 1% completed the course:", total_completion_rate))
 ```
+
+
 
 ```{r}
 #Identifying the drop off point
 ggplot(drop_off_ordered, aes(x = week_step, y = number_of_learners)) +
-  geom_bar(stat = "identity", fill = "#007BA7") +
+  geom_bar(stat = "identity", fill = "steelblue") +
   labs(
     title = "Number of Learners at each Step",
     x = "Last Completed Step",
     y = "Number of Learners"
   ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 ```{r}
 
@@ -102,7 +108,7 @@ In practice: rho = 1 with discrete steps often indicates that step number is per
 
 ```{r}
 #how long does it take to complete one step
-ggplot(step_summary, aes(x=step, y=median_duration)) +
+ggplot(summary_stats, aes(x=step, y=median_duration)) +
   geom_col() +
   labs(y="Median duration (secs)", x="Step")
 ```
@@ -120,19 +126,44 @@ The variability between steps in terms of median duration could suggest that som
 
 ```{r}
 #time taken at eat step and the number of learners at each step
-ggplot(step_summary, aes(x = factor(step))) +
+ggplot(step_summary, aes(x = step)) +
   geom_col(aes(y = median_duration_secs), fill = "steelblue", alpha = 0.7) +
-  geom_line(aes(y = learner_count_scaled, group = 1), color = "firebrick", size = 1) +
-  geom_point(aes(y = learner_count_scaled), color = "firebrick", size = 2) +
+  geom_line(aes(y = learner_count_scaled, group = 1),
+            color = "firebrick", size = 1) +
+  geom_point(aes(y = learner_count_scaled),
+             color = "firebrick", size = 2) +
   scale_y_continuous(
     name = "Median Duration (seconds)",
-    sec.axis = sec_axis(~ . / max_duration * max_learners,
-                        name = "Number of Learners")
+    sec.axis = sec_axis(
+      ~ . / max_duration * max_learners,
+      name = "Number of Learners"
+    )
   ) +
   labs(
     x = "Step",
     title = "Median Duration per Step with Learner Count Overlay"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+Interpretation:
+Median Duration per Step:
+The height of the bars varies substantially between steps.
+Some steps have very high median durations, such as step 3, where the median time exceeds 800 seconds (~13 minutes). This indicates that this step takes significantly longer for learners to complete than other steps.
+Many steps have relatively short median durations below 200 seconds (~3 minutes), suggesting quicker completion.
+The variation in median duration likely reflects different content types or difficulty levels across the steps.
+Number of Learners per Step (Red line):
+The red line shows a general declining trend in the number of learners as the step number increases.
+Early steps have the highest learner counts, close to or above 1500 learners, indicating most learners start the course and engage with initial steps.
+The number of learners drops steadily through the course, reflecting natural attrition or drop-off as learners progress.
+There are some fluctuations where learner counts temporarily stabilize or increase slightly at some steps, possibly indicating re-engagement or course structure effects.
+At some steps (e.g., around steps 18-19), the learner count drops sharply, suggesting significant dropout points.
+Relationship between Duration and Learner Count:
+Steps with longer median durations don’t always correspond to higher or lower learner counts.
+For example, step 3 has a very high median duration but still retains a large number of learners.
+In contrast, some steps with moderate or low median duration have low learner counts, which might indicate dropout is not necessarily driven by step length alone.
+Overall conclusion:
+Learners tend to spend different amounts of time on different steps, with some steps being notably longer.
+Learner attrition is evident as the course progresses, with fewer learners reaching later steps.
+The combined visualization helps identify critical steps that take longer and steps where learner drop-off is highest, useful for course design improvements.

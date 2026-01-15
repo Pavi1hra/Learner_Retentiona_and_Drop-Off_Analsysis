@@ -308,7 +308,12 @@ step_summary <- step_activity %>%
     learner_count = n_distinct(learner_id)
   )
 
-# Step 4: Scale learner_count to duration scale for plotting line
+step_summary <- step_summary %>%
+  mutate(step_num = as.numeric(step)) %>%
+  arrange(step_num) %>%
+  mutate(step_factor = factor(step, levels = unique(step)))
+
+# Recompute scaling values
 max_duration <- max(step_summary$median_duration_secs, na.rm = TRUE)
 max_learners <- max(step_summary$learner_count, na.rm = TRUE)
 
@@ -318,10 +323,13 @@ step_summary <- step_summary %>%
   )
 
 # Step 5: Plot bars + line with secondary y-axis
-ggplot(step_summary, aes(x = factor(step))) +
-  geom_col(aes(y = median_duration_secs), fill = "steelblue", alpha = 0.7) +
-  geom_line(aes(y = learner_count_scaled, group = 1), color = "firebrick", size = 1) +
-  geom_point(aes(y = learner_count_scaled), color = "firebrick", size = 2) +
+ggplot(step_summary, aes(x = step_factor)) +
+  geom_col(aes(y = median_duration_secs),
+           fill = "steelblue", alpha = 0.7) +
+  geom_line(aes(y = learner_count_scaled, group = 1),
+            color = "firebrick", size = 1) +
+  geom_point(aes(y = learner_count_scaled),
+             color = "firebrick", size = 2) +
   scale_y_continuous(
     name = "Median Duration (seconds)",
     sec.axis = sec_axis(~ . / max_duration * max_learners,
@@ -331,8 +339,9 @@ ggplot(step_summary, aes(x = factor(step))) +
     x = "Step",
     title = "Median Duration per Step with Learner Count Overlay"
   ) +
-  theme_minimal()
-
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1))
 
 view(df)
 view(expected_duration)
