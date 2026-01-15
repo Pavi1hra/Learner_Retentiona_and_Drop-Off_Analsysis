@@ -1,5 +1,5 @@
 ---
-title: ""
+title: "Newcastle MOOC : Learner Retention and Drop-Off Patterns"
 author: "Pavithra Govinda Raj"
 date: "2026-01-01"
 output: pdf_document
@@ -26,7 +26,7 @@ MOOC platforms generate rich interaction data through virtual learning environme
 
 The study is guided by the research question:
 
-> **"In which steps do users drop off the most?**"
+> **"Is there significant drop-off during the course, what affects drop-off?"**
 
 The Learning Analytics process is considered successful if key points of disengagement are identified, or if learner attrition is shown to be evenly distributed across course steps, thereby informing evidence-based interventions and course improvements.
 
@@ -40,9 +40,34 @@ The organisation that publishes the data is Newcastle University, in collaborati
 
 The data used in this analysis records learner activity metrics across seven weeks of the online course “Cyber Security: Safety at Home, Online, and in Life.” The dataset is sourced from the FutureLearn platform and captures learner interactions at multiple levels of granularity. For each week of the course, eight separate data files are provided, each representing a distinct aspect of learner engagement. As the data is generated directly by the learning platform, there are no general concerns regarding data quality. Further information on the structure and definitions of the recorded metrics is provided below.
 
-- 
+- weekly_sentiment_survey_responses: Data comprising 77 observations and five variables, including respondent identifiers, response timestamps, week numbers, experience ratings, and reported reasons. The dataset is complete across all variables, with the exception of the reason column, which contains some missing entries.
+- video_stats: Data on video engagement and audience characteristics, comprising multiple observations and 34 variables, which include video metadata (e.g. position, title, duration), measures of reach and interaction (e.g. total views, downloads, caption and transcript views), detailed viewer retention at multiple watch thresholds (from 5% to 100%), device usage distributions (console, desktop, mobile, TV, tablet, unknown), and geographic distribution of views across global regions (Europe, Oceania, Asia, North America, South America, Africa, and Antarctica).
+- team_members: Data on team composition and roles, comprising multiple records and five variables, which include unique identifiers and member attributes such as first and last names, team roles, and user roles.
+- step_activity: Data on learner progress and engagement with course steps, comprising multiple records and six variables, which include learner identifiers, step and step number, week number, and timestamps indicating when each step was first visited and last completed.
+- question_response: Data on learner interactions with quiz questions, comprising multiple records and ten variables, which include learner identifiers, quiz question text, question type, week and step numbers, question number, learner responses (including cloze responses), submission timestamps, and indicators of response correctness.
+- leaving_survey_responses: Data on learner attrition and exit feedback, comprising multiple records and eight variables, which include unique response identifiers, learner identifiers, timestamps of leaving, stated reasons for leaving, and details of the learner’s last completed step, including date, step name, week number, and step number.
+- enrolments: Data on learner enrollment and demographic characteristics, comprising multiple records and thirteen variables, which include learner identifiers, enrollment and unenrollment timestamps, learner role, participation and certificate purchase dates, and demographic information such as gender, country, age range, highest education level, employment status, employment area, and detected country.
+- archetype_survey_responses: Data on learner archetype survey responses, comprising multiple records and four variables, which include unique response identifiers, learner identifiers, timestamps of response submission, and the archetype assigned to each learner.
 
-```{r} 
+# Data Analysis
+We have analyzed the enrolments dataset to examine learner adoption and course completion rates during the final (7th) week of the course. Focusing on the 7th week is significant because it captures learner engagement and completion behavior at the course’s conclusion, providing insights into who persists through to the end and identifying potential drop-off points. Understanding these metrics is critical for higher education institutions, course designers, and learning technologists to identify barriers to engagement, optimize course design, and enhance learner outcomes. Academic researchers can use these insights to study patterns in learner behavior toward the end of the course, while platform providers can leverage the findings to improve platform functionality and support learner retention.
+
+## Adoption and Completion Rate Calculations
+
+### Adoption Rate Formula
+
+The adoption rate for each month is computed using the following formula:
+
+\[
+\text{Adoption Rate (\%)} = \frac{\text{Number of learners in that month}}{\text{Total number of learners}} \times 100
+\]
+
+Where:
+
+- `Number of learners in that month`: distinct learners enrolled in a given month
+- `Total number of learners`: sum of distinct learners across all months
+
+```{r adoption-rate, fig.cap="Adoption Rate per month"} 
 #EDA : Adoption Rate 
 # Step 3: Create a bar graph of adoption rate per month
 ggplot(adoption_pt_enrolments_7,
@@ -56,32 +81,101 @@ ggplot(adoption_pt_enrolments_7,
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   )) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(hjust = 0.5)  # Center title
+  )
 ```
+
+Fig 1. Adoption Rate per month, illustrates how adoption rates (in percentage) vary from January to June.
+- April has the highest adoption rate, slightly above 17%, indicating that most enrollments or course adoptions occurred during this month.
+- March and May also show notable adoption rates, around 8% and 9%, respectively, suggesting that these months were also popular for new enrollments.
+- January, February, and June have very low adoption rates, each below 1%, indicating minimal activity or enrollments during these months.
+
+Overall, the adoption trend peaks in April and then declines afterward, suggesting that enrollment activity is highly concentrated in the spring months, particularly April, with relatively low adoption at the start and end of the first half of the year. This pattern could reflect factors such as course scheduling, marketing campaigns, or seasonal learner interest.
+
+It is also possible that adoption rates are influenced by user demographics, geographical location, time zones, or employment type. However, since these factors do not directly impact our business question, they will not be explored in detail.
+
+The completion rate of the course over the year is also an important metric to understand learner interaction.
+
+### Completion Rate Formula
+
+The **completion rate** for the course is computed using the following formula:
+
+\[
+\text{Completion Rate (\%)} = \frac{\text{Number of learners who completed the course}}{\text{Total number of learners who enrolled}} \times 100
+\]
+
+Where:
+
+- `Number of learners who completed the course`: distinct learners who finished the course  
+- `Total number of learners who enrolled`: sum of distinct learners who enrolled in the course across all months
 
 ```{r}
 #completion rate
-print(paste("Less than 1% completed the course:", total_completion_rate))
+print(paste("Less than 5% completed the course:", total_completion_rate))
 ```
 
+Out of all learners who enrolled in the course, only approximately 1.8% successfully completed it, reflecting a notably low course completion rate. Such a low rate may be indicative of several factors, including:
+- Limited learner engagement
+- High course difficulty
+- Significant learner attrition or drop-off during the course
 
+Given that our research question focuses specifically on learner retention, we will examine drop-off patterns throughout the course to better understand the points at which learners disengage and the potential contributing factors
 
-```{r}
+```{r drop-off,fig.cap="Drop off per week"}
 #Identifying the drop off point
 ggplot(drop_off_ordered, aes(x = week_step, y = number_of_learners)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
+  geom_bar(stat = "identity", fill = "#007BA7") +
   labs(
-    title = "Number of Learners at each Step",
-    x = "Last Completed Step",
+    title = "Number of Learners that completed each step",
+    x = "Week and Step",
     y = "Number of Learners"
   ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(hjust = 0.5)
+  )
 ```
-```{r}
+Looking at the above plot we observe that: 
 
+- The largest loss of learners occurs before any course content is completed, highlighting a critical challenge with initial engagement or onboarding.
+- Early steps also show some attrition, but much smaller in comparison.
+- Once learners pass the initial weeks, drop-offs are relatively low, indicating better retention mid-course.
+- The final step’s peak confirms a small but meaningful group completing the course.
+
+# Evaluation
+Looking at the charts it is implied that: 
+
+- Efforts to improve onboarding and initial engagement are essential, as nearly half of learners leave before completing the first step.
+- After overcoming the initial barrier, the course seems reasonably effective at retaining learners through to completion.
+
+This pattern suggests focusing intervention strategies at the very start of the course, including clearer instructions, better motivation, or technical support.
+
+It is identified that drop off is an issue therefore in the second crisp dmm cycle the factors that could affect the drop - off will be explored. 
+
+# CRISP-DM Cycle 2
+The business understanding remains the same as in the previous cycle, but this cycle will use more detailed data to delve into the possible cause of drop-offs
+
+# Data Understanding 
+From leaving_survey_response data set we obtain the below information. 
+
+```{r word cloud, fig.cap="Responses"}
+# word cloud of responses
+wordcloud(corpus_sentences, 
+          scale = c(3, 0.5),   # Adjust the size of words (sentences)
+          min.freq = 1,        # Set minimum frequency for words to appear
+          max.words = 50,      # Limit the number of words in the cloud
+          colors = colors)    # Custom color vector
 ```
 
+The word cloud indicates that experience and duration are factors influencing the decision to leave.
+
+# Data Analysis
+To understand whether learners’ weekly experience in the course influences the week they drop off. The weekly_survey_responses dataset provides two key variables for this purpose: experience_rating, which captures learners’ self-reported satisfaction with the course each week, and week_number, which indicates the specific week the response was recorded and can be used to infer when learners exit the course.
+
+To explore the relationship between these variables, we calculate the Spearman correlation, which measures the strength and direction of a monotonic relationship. This method is particularly suitable because experience ratings are ordinal, and the correlation does not assume a linear relationship. This analysis provides an initial insight into how learners’ perceived course experience might influence their retention.
 
 ```{r}
 #checking to see if the experience influences when a user leaves
@@ -90,41 +184,21 @@ cor(weekly_survey_responses$experience_rating,
     method = "spearman", use="complete.obs")
 ```
 
-Positive sign → very slight tendency that higher experience ratings correspond to later leaving weeks
-Magnitude is very close to 0 → practically no monotonic association
-Essentially, experience rating and leaving week are independent in your dataset.
+The Spearman correlation between learners’ weekly experience ratings and the week they leave the course is slightly positive but very close to zero. The positive sign indicates a very slight tendency for learners with higher experience ratings to remain in the course for later weeks. However, the magnitude being near zero shows that this relationship is extremely weak. In practical terms, this means there is essentially no monotonic association between experience rating and leaving week in the dataset. In other words, learners’ reported experience does not appear to meaningfully influence when they drop out of the course, and the two variables can be considered largely independent.
+
+Now that it is understood that experience doesn't impact drop-out, the duration of videos will be taken into consideration. 
 
 ```{r}
 #does the video duration influence last_completed_week number. interepretation, the users that completed the course have actually gone through all the videos and taken the time to complete them
 cor.test(df$video_duration, df$last_completed_week_number, method="spearman")
 ```
+From the above code it is understood that: as video_duration increases, last_completed_week_number increases monotonically with no observed exceptions. 
 
-As video_duration increases, last_completed_week_number always increases without exception.
-Strength: rho = 1 → extremely strong positive monotonic relationship
-Direction: positive → longer videos correspond to later leaving weeks
-Significance: p < 2.2e-16 → statistically significant
-Caution: ties reduce the precision of the exact p-value, but the conclusion of strong positive correlation is still valid.
-In practice: rho = 1 with discrete steps often indicates that step number is perfectly aligned with cumulative video duration — which makes sense if video_duration is taken from the step the learner last completed.
+Strength: $\rho$ = 1, indicating a perfectly strong positive monotonic relationship. Direction: Positive — learners associated with longer cumulative video durations leave the course in later weeks. Significance: p < 2.2e-16, demonstrating that the relationship is statistically significant. Caution: The presence of ties limits the precision of the exact p-value; however, this does not undermine the conclusion of an extremely strong association. 
 
-```{r}
-#how long does it take to complete one step
-ggplot(summary_stats, aes(x=step, y=median_duration)) +
-  geom_col() +
-  labs(y="Median duration (secs)", x="Step")
-```
+The following plot is used to explore how time spent on each step relates to learner drop-off. The bars represent the median duration per step, while the overlaid line shows the number of learners remaining at each step.
 
-Interpreting the plot:
-The x-axis shows the steps in the course, probably in ascending order (1, 2, 3, ...).
-The y-axis shows the median duration learners spent on each step, measured in seconds.
-Each bar height corresponds to the median time learners took on that particular step.
-From the plot, you can see:
-Some steps have very low median durations (short bars), meaning learners spent less time on those steps on average.
-Some steps have very high median durations (tall bars), meaning learners spent a longer time on those steps.
-For example, there’s a very tall bar at around step 3, showing a large spike in median duration, indicating that step 3 took much longer on median compared to other steps.
-Some steps show a cluster of short bars with very low durations, possibly indicating quick steps or skippable content.
-The variability between steps in terms of median duration could suggest that some steps are more complex or require more effort.
-
-```{r}
+```{r duration vs learner, fig.cap="Duration & Learners"}
 #time taken at eat step and the number of learners at each step
 ggplot(step_summary, aes(x = step)) +
   geom_col(aes(y = median_duration_secs), fill = "steelblue", alpha = 0.7) +
@@ -141,29 +215,29 @@ ggplot(step_summary, aes(x = step)) +
   ) +
   labs(
     x = "Step",
-    title = "Median Duration per Step with Learner Count Overlay"
+    title = "Duration per Step with Learner Count"
   ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(hjust = 0.5) 
+  )
 ```
+The plot shows substantial variation in median step duration, reflecting differences in content length and complexity. While most steps are short (under 200 seconds), a few—most notably step 3—require significantly more time (over 800 seconds), indicating higher learner effort.
 
-Interpretation:
-Median Duration per Step:
-The height of the bars varies substantially between steps.
-Some steps have very high median durations, such as step 3, where the median time exceeds 800 seconds (~13 minutes). This indicates that this step takes significantly longer for learners to complete than other steps.
-Many steps have relatively short median durations below 200 seconds (~3 minutes), suggesting quicker completion.
-The variation in median duration likely reflects different content types or difficulty levels across the steps.
-Number of Learners per Step (Red line):
-The red line shows a general declining trend in the number of learners as the step number increases.
-Early steps have the highest learner counts, close to or above 1500 learners, indicating most learners start the course and engage with initial steps.
-The number of learners drops steadily through the course, reflecting natural attrition or drop-off as learners progress.
-There are some fluctuations where learner counts temporarily stabilize or increase slightly at some steps, possibly indicating re-engagement or course structure effects.
-At some steps (e.g., around steps 18-19), the learner count drops sharply, suggesting significant dropout points.
-Relationship between Duration and Learner Count:
-Steps with longer median durations don’t always correspond to higher or lower learner counts.
-For example, step 3 has a very high median duration but still retains a large number of learners.
-In contrast, some steps with moderate or low median duration have low learner counts, which might indicate dropout is not necessarily driven by step length alone.
-Overall conclusion:
-Learners tend to spend different amounts of time on different steps, with some steps being notably longer.
-Learner attrition is evident as the course progresses, with fewer learners reaching later steps.
-The combined visualization helps identify critical steps that take longer and steps where learner drop-off is highest, useful for course design improvements.
+Learner counts decline steadily across steps, with high retention early in the course (around 1,500 learners) and sharper drop-offs at specific points, such as steps 18–19. However, longer step duration does not consistently coincide with immediate attrition. For example, step 3 retains many learners despite its length, while some shorter steps follow major declines. This suggests that dropout is influenced by factors beyond step duration alone, including course structure and learner motivation.
+
+# Evaluation
+The analyses show clear learner attrition as the course progresses, with high engagement in early steps and steady drop-off in later stages. Sharp declines at specific steps suggest potential disengagement points, while substantial variation in median step duration reflects differences in content complexity and effort required. However, longer step duration does not consistently lead to immediate drop-off, indicating that time demands alone do not explain attrition.
+
+Correlation results reinforce this finding. Cumulative video duration is perfectly and positively associated with the week learners leave the course (Spearman rho = 1, p < 2.2e-16), showing that learners who engage with more video content remain enrolled longer. In contrast, experience ratings show an extremely weak relationship with dropout timing, suggesting they do not meaningfully influence retention.
+
+Overall, learner retention appears driven by sustained engagement rather than individual step length or perceived experience, highlighting the importance of pacing, course structure, and support at key drop-off points.
+
+# Conclusion 
+The analysis addresses the research question: Is there significant drop-off during the course, and what affects it? The step-level and duration analyses confirm a clear drop-off in learners as the course progresses, with a pronounced decline after the first week and sharp decreases at specific steps (e.g., steps 18–19). However, the investigation also shows that drop-off is not strongly driven by step duration or learner experience ratings. For example, step 3 has a very high median duration but retains a large number of learners, and experience ratings have an almost negligible correlation with the week learners leave the course. These findings suggest that while drop-off is significant, its causes are likely related to other factors such as course structure, learner motivation, or external constraints, rather than individual step length or perceived experience. 
+
+# Next Steps 
+To better understand the drivers of attrition, the next steps should focus on collecting and analyzing data from learners who complete the course, as well as those who drop out. This could include qualitative feedback, engagement patterns, and progression behaviors. Insights from this analysis can help identify course elements that sustain learner engagement, refine pacing, and implement targeted interventions at key drop-off points to improve retention.
+
+

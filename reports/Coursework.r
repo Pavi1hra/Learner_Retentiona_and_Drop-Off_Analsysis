@@ -51,32 +51,59 @@ total_enroled <- sum(adoption_pt_enrolments_7$number_of_learners)
 completion_rate <- (completed_course/total_enroled) * 100
 
 #__________________________
-df<- cyber.security.7_leaving.survey.responses
+library(dplyr)
+library(lubridate)
+
+df <- cyber.security.7_leaving.survey.responses
+
+# Convert left_at to POSIXct datetime
 df$left_at <- as.POSIXct(df$left_at, format='%Y-%m-%d %H:%M:%S')
+
+# Extract year, month, and month name
 df <- df %>%
   mutate(
     year = year(left_at),
     month = month(left_at),
-    month_name = month.name[month]  
+    month_name = month.name[month]
   )
+
+# Group by last completed week and step, but keep rows with NA and label them as dropped off early
 drop_off <- df %>%
-  group_by(year, month, last_completed_week_number, last_completed_step_number) %>%
+  mutate(
+    # Create a new variable to identify learners with missing step info
+    drop_off_status = ifelse(
+      is.na(last_completed_week_number) | is.na(last_completed_step_number),
+      "Dropped off before first step",
+      "Completed some step"
+    ),
+    # Replace NAs in step numbers with 0 (or another marker) for grouping
+    last_completed_week_number = ifelse(is.na(last_completed_week_number), 0, last_completed_week_number),
+    last_completed_step_number = ifelse(is.na(last_completed_step_number), 0, last_completed_step_number)
+  ) %>%
+  group_by(year, month, last_completed_week_number, last_completed_step_number, drop_off_status) %>%
   summarise(number_of_learners = n(), .groups = "drop") %>%
   arrange(year, month, last_completed_week_number, last_completed_step_number)
 
-drop_off_clean <- drop_off %>%
-  filter(
-    !is.na(last_completed_week_number),
-    !is.na(last_completed_step_number)
-  ) %>%
+# Create descriptive week_step labels, including for those dropped off before any step
+drop_off <- drop_off %>%
   mutate(
-    week_step = paste(
-      "Week", last_completed_week_number,
-      "- Step", last_completed_step_number
+    week_step = case_when(
+      drop_off_status == "Dropped off before first step" ~ "Dropped off before Step 1",
+      TRUE ~ paste("Week", last_completed_week_number, "- Step", last_completed_step_number)
     )
   )
 
-    ggplot(drop_off_clean, aes(x = week_step, y = number_of_learners)) +
+# Order week_step factor for plotting (put "Dropped off before Step 1" first)
+drop_off_ordered <- drop_off %>%
+  arrange(last_completed_week_number, last_completed_step_number) %>%
+  mutate(
+    week_step = factor(
+      week_step,
+      levels = c("Dropped off before Step 1", unique(week_step[week_step != "Dropped off before Step 1"]))
+    )
+  )
+
+    ggplot(drop_off_ordered, aes(x = week_step, y = number_of_learners)) +
       geom_bar(stat = "identity", fill = "#007BA7") +
       labs(
         title = "Number of Learners by Last Completed Week and Step",
@@ -342,6 +369,8 @@ ggplot(step_summary, aes(x = step_factor)) +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1))
+
+
 
 view(df)
 view(expected_duration)
