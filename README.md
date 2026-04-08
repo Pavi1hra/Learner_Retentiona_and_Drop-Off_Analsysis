@@ -1,41 +1,86 @@
-# "Newcastle MOOC : Learner Retention and Drop-Off Patterns"
+# Newcastle MOOC: Learner Retention and Drop-Off Patterns
 
-#Description:
-This project investigates learner engagement in a Newcastle University online 
-cybersecurity course. The primary research question is whether there is a 
-significant drop-off during the course, and the secondary question explores factors 
-that may influence learner dropout. Step-level data, including median time spent per step 
-and learner counts, are analyzed to identify points where learners disengage. Visualizations 
-overlaying step duration and learner retention help highlight bottlenecks, 
-while further analysis considers step characteristics, such as type or difficulty, 
-as potential factors affecting drop-off. The findings aim to pinpoint stages of high 
-attrition and provide insights to improve course design and learner retention.
+## Overview
+This project analyzes learner engagement in a Newcastle University online cybersecurity MOOC. The goal is to identify where and why learners drop off during the course and to provide data-driven insights that may enhance course design and learner retention.
 
-#Directory information: 
-the major folders in the project directory that we will be using are: 
+## Research Questions
+**Primary Question:**  
+Is there a significant drop-off in learner participation across different course steps?  
 
-cache/ – Stores cached intermediate results to speed up analyses and avoid repeated computations.
-reports/ – Contains final rendered outputs (e.g., PDF/HTML/Word reports) for submission or presentation.
-munge/ – Holds scripts for cleaning, transforming, and preparing raw data for analysis.
-config/ – Centralizes project configuration settings such as paths, parameters, and global options.
+**Secondary Question:**  
+What factors contribute to learner dropout?
 
-#Project setup 
-The project is fairly easy to setup, downloading the zipped folder and running it with the r version that is denoted in the renv.lock file
+## Approach
+The analysis uses step-level data encompassing:
+- Number of active learners per step  
+- Median time spent on each step  
 
-#Project execution instruction
-- Install the required R version
-- Ensure that the version of R specified in the renv.lock file is installed on your system.
-- Download and extract the project
-- Download the zipped project folder and extract it to a local directory.
-- Open the project in RStudio
-- Open the .Rproj file located in the project root to ensure correct working directories and project settings.
-- Restore the project environment
-- Install renv if it is not already installed, then restore the project-specific package library:
-install.packages("renv")
-- renv::restore()
-- Run data preparation scripts
-- Execute the scripts in the munge/ directory to clean and prepare the raw step-level data for analysis.
-- Run analysis and generate outputs
-- Run the analysis scripts or render the report files (e.g., R Markdown) to reproduce figures and results.
-Final outputs will be saved in the reports/ directory.
+**Key Methods:**
+- Retention analysis across course progression  
+- Visualizations combining learner counts and step duration  
+- Examination of step characteristics (e.g., type, difficulty)
 
+## Expected Outcomes
+- Identification of high-attrition points  
+- Highlighting potential bottlenecks in course progression  
+- Actionable recommendations to improve retention and engagement  
+
+## Project Structure
+```
+.
+├── cache/       # Cached intermediate results for faster execution
+├── config/      # Configuration files (paths, parameters, settings)
+├── munge/       # Data cleaning and preprocessing scripts
+├── reports/     # Analytical outputs (HTML, PDF, Word reports)
+```
+
+## Setup Instructions
+1. **Install Required R Version**  
+   Confirm that you have the R version specified in `renv.lock`.
+
+2. **Clone or Download the Repository**  
+   ```
+   git clone <repo-url>
+   ```
+   Alternatively, download and extract the ZIP file.
+
+3. **Open the Project in RStudio**  
+   Open the `.Rproj` file located in the project root to ensure proper environment configuration.
+
+4. **Restore Dependencies**  
+   If `renv` is not installed, install it and restore the project environment:  
+   ```R
+   install.packages("renv")
+   renv::restore()
+   ```
+
+## Running the Project
+1. **Data Preparation**  
+   Execute scripts in the `munge/` directory to clean and prepare the raw data.
+
+2. **Analysis and Reporting**  
+   Run the analysis scripts or render the R Markdown files.  
+   Final outputs will be saved in the `reports/` directory.
+
+## Outputs
+The project produces the following deliverables:
+- Learner retention curves  
+- Step-level engagement visualizations  
+- Comprehensive reports summarizing dropout patterns and insights  
+
+## Example Key Insights
+- Steps with highest learner drop-off identified  
+- Correlation between step duration and disengagement established  
+- Influence of content type and difficulty on retention examined  
+
+## Requirements
+- R (version specified in `renv.lock`)  
+- RStudio (recommended)  
+- `renv` for dependency management  
+
+## Contributing
+Contributions, suggestions, and improvements are welcome.  
+Please open an issue or submit a pull request to collaborate on project development.
+
+## License
+Developed by Pavithra Govinda Raj in liaison with Newcastle University.
